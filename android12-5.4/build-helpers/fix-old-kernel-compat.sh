@@ -31,6 +31,14 @@ for al in "$PARENT"/*/kernel/allowlist.c; do
   echo "Patched $(basename "$(dirname "$(dirname "$al")")")/kernel/allowlist.c with pre-5.7 compat"
 done
 
+# strncpy_from_user_nofault was renamed from strncpy_from_unsafe_user in 5.8
+for src in "$PARENT"/*/kernel/*.c; do
+  [ -f "$src" ] || continue
+  grep -q 'strncpy_from_user_nofault' "$src" || continue
+  sed -i 's/strncpy_from_user_nofault/strncpy_from_unsafe_user/g' "$src"
+  echo "Fixed strncpy_from_user_nofault in $(basename "$(dirname "$(dirname "$src")")")/kernel/$(basename "$src")"
+done
+
 # linux/pgtable.h was split from asm/pgtable.h in 5.8
 for src in "$PARENT"/*/kernel/*.c; do
   [ -f "$src" ] || continue
