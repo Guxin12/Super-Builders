@@ -486,7 +486,7 @@ diff '--color=auto' -ruN a/fs/xattr.c work/fs/xattr.c
 diff '--color=auto' -ruN a/fs/zeromount.c work/fs/zeromount.c
 --- a/fs/zeromount.c	1970-01-01 01:00:00.000000000 +0100
 +++ b/fs/zeromount.c	2026-03-01 13:15:44.288522851 +0100
-@@ -0,0 +1,1517 @@
+@@ -0,0 +1,1526 @@
 +#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
@@ -1422,6 +1422,15 @@ diff '--color=auto' -ruN a/fs/zeromount.c work/fs/zeromount.c
 +
 +	if (depth > 20)
 +		return;
++
++	/* Existing path on real fs means all ancestors exist too */
++	{
++		struct path check;
++		if (kern_path(v_path, LOOKUP_FOLLOW, &check) == 0) {
++			path_put(&check);
++			return;
++		}
++	}
 +
 +	path_copy = kstrdup(v_path, GFP_KERNEL);
 +	if (!path_copy)

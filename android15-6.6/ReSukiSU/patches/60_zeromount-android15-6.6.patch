@@ -382,7 +382,7 @@
  
  #include "internal.h"
  
-@@ -428,6 +431,12 @@
+@@ -428,7 +431,13 @@
  ssize_t
  vfs_getxattr(struct mnt_idmap *idmap, struct dentry *dentry,
  	     const char *name, void *value, size_t size)
@@ -459,7 +459,7 @@
  #endif
 --- a/fs/zeromount.c	2026-03-01 02:48:33.847739002 +0100
 +++ b/fs/zeromount.c	2026-03-01 02:42:39.836505791 +0100
-@@ -0,0 +1,1517 @@
+@@ -0,0 +1,1526 @@
 +#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
@@ -1395,6 +1395,15 @@
 +
 +	if (depth > 20)
 +		return;
++
++	/* Existing path on real fs means all ancestors exist too */
++	{
++		struct path check;
++		if (kern_path(v_path, LOOKUP_FOLLOW, &check) == 0) {
++			path_put(&check);
++			return;
++		}
++	}
 +
 +	path_copy = kstrdup(v_path, GFP_KERNEL);
 +	if (!path_copy)

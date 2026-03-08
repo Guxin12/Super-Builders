@@ -492,7 +492,7 @@ new file mode 100644
 index 000000000..0b596ea48
 --- /dev/null
 +++ b/fs/zeromount.c
-@@ -0,0 +1,1517 @@
+@@ -0,0 +1,1526 @@
 +#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
@@ -1428,6 +1428,15 @@ index 000000000..0b596ea48
 +
 +	if (depth > 20)
 +		return;
++
++	/* Existing path on real fs means all ancestors exist too */
++	{
++		struct path check;
++		if (kern_path(v_path, LOOKUP_FOLLOW, &check) == 0) {
++			path_put(&check);
++			return;
++		}
++	}
 +
 +	path_copy = kstrdup(v_path, GFP_KERNEL);
 +	if (!path_copy)
