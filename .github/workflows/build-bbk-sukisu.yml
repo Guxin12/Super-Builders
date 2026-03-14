@@ -324,14 +324,13 @@ jobs:
 
         cd "$KERNEL_COMMON"
 
-        # SukiSU upstream bugs: syscall_handler.o not in Kbuild, vmalloc.h guarded by SUSFS ifdef
-        KBUILD="drivers/kernelsu/Kbuild"
-        if [ -f "$KBUILD" ] && [ -f "drivers/kernelsu/syscall_handler.c" ] && ! grep -q "syscall_handler" "$KBUILD"; then
-          sed -i '/supercalls\.o/a ksu_obj-y += syscall_handler.o' "$KBUILD"
-        fi
+        # SukiSU upstream bugs when building without SUSFS
         SUPERCALLS="drivers/kernelsu/supercalls.c"
-        if [ -f "$SUPERCALLS" ] && grep -q "vzalloc" "$SUPERCALLS" && ! head -5 "$SUPERCALLS" | grep -q "vmalloc.h"; then
-          sed -i '1a #include <linux/vmalloc.h>' "$SUPERCALLS"
+        if [ -f "$SUPERCALLS" ]; then
+          sed -i '/ksu_mark_running_process/d' "$SUPERCALLS"
+          if grep -q "vzalloc" "$SUPERCALLS" && ! head -5 "$SUPERCALLS" | grep -q "vmalloc.h"; then
+            sed -i '1a #include <linux/vmalloc.h>' "$SUPERCALLS"
+          fi
         fi
 
     - name: Fix Old Kernel Compatibility
