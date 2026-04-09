@@ -322,7 +322,7 @@ diff -ruN '--exclude=include' clean-kernel/feature/sucompat.h work-kernel/featur
  #endif
 diff -ruN '--exclude=include' clean-kernel/hook/setuid_hook.c work-kernel/hook/setuid_hook.c
 --- a/kernel/hook/setuid_hook.c	2026-04-09 11:57:48.450220824 +0100
-+++ b/kernel/hook/setuid_hook.c	2026-04-09 13:00:55.763123372 +0100
++++ b/kernel/hook/setuid_hook.c	2026-04-09 13:31:53.843570637 +0100
 @@ -11,6 +11,9 @@
  #include <linux/types.h>
  #include <linux/uaccess.h>
@@ -333,9 +333,13 @@ diff -ruN '--exclude=include' clean-kernel/hook/setuid_hook.c work-kernel/hook/s
  
  #include "policy/allowlist.h"
  #include "hook/setuid_hook.h"
-@@ -21,6 +24,23 @@
+@@ -20,7 +23,27 @@
+ #include "supercall/supercall.h"
  #include "hook/tp_marker.h"
  #include "feature/kernel_umount.h"
++#ifdef CONFIG_KSU_SUSFS
++#include "selinux/selinux.h"
++#endif // #ifdef CONFIG_KSU_SUSFS
  
 +#ifdef CONFIG_KSU_SUSFS
 +static inline bool is_zygote_isolated_service_uid(uid_t uid)
@@ -357,7 +361,7 @@ diff -ruN '--exclude=include' clean-kernel/hook/setuid_hook.c work-kernel/hook/s
  int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
  {
      // we rely on the fact that zygote always call setresuid(3) with same uids
-@@ -55,6 +75,53 @@
+@@ -55,6 +78,53 @@
  
      return 0;
  }
